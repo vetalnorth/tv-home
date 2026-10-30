@@ -52,6 +52,14 @@ Forked from [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) 
 
 ---
 
+## 👥 Credits & Roles
+
+* **Original Creator:** [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) — Base architecture, core launcher engine, and original project.
+* **UI/UX & Liquid Glass Redesign:** [@vetalnorth](https://github.com/vetalnorth) — Visual redesign, UI optimizations, and release builds.
+* **AI Coding Partner:** [Google Gemini](https://gemini.google.com/) — Assistance with code refactoring, layout tuning, and documentation.
+
+---
+
 ## ☕ Support the Project
 
 If you enjoy this launcher and want to support further development and optimization:
