@@ -25,7 +25,7 @@ Forked from [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) 
 ## ✨ Features
 
 - **Liquid Glass Aesthetic:** Sleek frosted glass dock capsules, ambient gradients, and crisp high-contrast focus rings.
-- **Universal TV Compatibility:** Uses density-independent layout calculations (`dp` and flexible column weights). Scales flawlessly across 720p, 1080p, and 4K panels of any screen diagonal.
+- **Adaptive TV Layout:** Built with density-independent units (`dp`) and responsive grids, engineered to scale cleanly across 1080p and 4K panels.
 - **Centered Smooth Dock:** The horizontal Favorites row smoothly glides and auto-centers the focused tile as you browse with your D-pad.
 - **Remote-First Dock Management:** **Long-press `OK`** on any app tile in the grid to pin it to the Favorites bar. Long-press again in the Dock to remove it.
 - **Hardware-Accelerated Fluidity:** Heavy dynamic gradient engines and continuous UI-thread shaders were completely removed, delivering an instant 60–120Hz response rate even on budget smart TVs.
@@ -41,6 +41,15 @@ Forked from [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) 
 | **Pin / Unpin to Dock** | **Long-press `OK`** on any app tile |
 | **Navigate Grid / Dock** | D-pad `Left` / `Right` / `Up` / `Down` |
 | **Quick Settings & Inputs** | Press `Up` from the top row |
+
+---
+
+## 📺 Tested Hardware & Compatibility
+
+* **Tested & Verified (60 FPS Fluid):**
+  * **Xiaomi TV A 43" 4K (2026 Edition)** — Google TV, 4K Ultra HD panel, instant D-pad response, zero UI lag.
+* **Target Requirements:** Android TV / Google TV 9.0 (Pie) or newer with standard Leanback framework.
+* **Community Feedback:** Tested on other models? Feel free to [open an issue](https://github.com/vetalnorth/tv-home/issues) with your TV model and impressions!
 
 ---
 
