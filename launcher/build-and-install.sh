@@ -28,7 +28,7 @@ rm -rf "$B" && mkdir -p "$B/gen" "$B/classes" "$B/dex"
 
 # Линковка с установкой минимального и целевого SDK 28
 "$BT/aapt2" link -o "$B/base.apk" -I "$JAR" --manifest AndroidManifest.xml --java "$B/gen" \
-  -A assets --min-sdk-version 28 --target-sdk-version 28 "$B/res.zip"
+  -A assets --min-sdk-version 28 --target-sdk-version 33 "$B/res.zip"
 
 # Компиляция Java исходников
 javac -nowarn -Xlint:-options --release 11 -classpath "$JAR" -d "$B/classes" \
