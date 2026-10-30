@@ -4,7 +4,7 @@ A lightweight, ultra-smooth, and distraction-free Android TV launcher inspired b
 
 Forked from `mihirgupta0900/tv-home` and completely rewritten to eliminate UI stuttering, input lag, and heavy background rendering overhead.
 
-![Before and After](before-after.png)
+![Before and After](before-after.png?v=2)
 
 ---
 
