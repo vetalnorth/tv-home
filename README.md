@@ -49,3 +49,11 @@ Forked from [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) 
 1. Download the latest **[tvhome.apk](../../releases/latest/download/tvhome.apk)** (or check the [Releases](../../releases) section).
 2. Transfer and install it via flash drive, local network, or via ADB: `adb install tvhome.apk`
 3. Press the **Home** button on your TV remote, choose **TV Home**, and select **"Always"**.
+
+---
+
+## ☕ Support the Project
+
+If you enjoy this launcher and want to support further development and optimization:
+
+- **[Donate via DonationAlerts](https://www.donationalerts.com/r/izwi)**
