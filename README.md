@@ -55,7 +55,7 @@ Forked from [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) 
 
 ## 📦 Quick Start & Setup
 
-1. Download the latest **[tvhome.apk](../../releases/latest/download/tvhome.apk)** (or check the [Releases](../../releases) section).
+1. Download the latest [tvhome-v1.0.1.apk](https://github.com/vetalnorth/tv-home/releases/download/v1.0.1/tvhome-v1.0.1.apk) (or check the [Releases](https://github.com/vetalnorth/tv-home/releases) section).
 2. Transfer and install it via flash drive, local network, or via ADB: `adb install tvhome.apk`
 3. Press the **Home** button on your TV remote, choose **TV Home**, and select **"Always"**.
 
