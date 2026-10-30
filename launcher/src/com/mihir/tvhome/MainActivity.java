@@ -1,7 +1,5 @@
 package com.mihir.tvhome;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -13,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Typeface;
@@ -35,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -66,10 +62,8 @@ public class MainActivity extends Activity {
         ComponentName component;
         Drawable art;
         boolean isBanner;
-        int color;
     }
 
-    private final Map<String, Integer> colorCache = new HashMap<>();
     private final List<View> dockCards = new ArrayList<>();
     private final List<View> gridCards = new ArrayList<>();
     private final List<View> pills = new ArrayList<>();
@@ -78,7 +72,6 @@ public class MainActivity extends Activity {
     private LinearLayout content, dockRow;
     private FrameLayout hero;
     private LinearLayout grid;
-    private View glow;
     private ImageView wallBack, wallFront;
     private View gridShade;
     private String[] wallpapers = new String[0];
@@ -88,8 +81,6 @@ public class MainActivity extends Activity {
     private final Runnable rotateWallpaper = this::nextWallpaper;
     static final long WALLPAPER_INTERVAL_MS = 10 * 60 * 1000;
     private TextView greeting, clock, ampm, date, title, wifiPill, appsLabel;
-    private int glowColor = 0xFF2A2A35;
-    private ValueAnimator glowAnim;
     private int lastFocusedId = View.NO_ID;
     private boolean firstShow = true;
     private int packageSeq;
@@ -105,14 +96,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        try {
-            dockApps = getResources().getStringArray(R.array.dock_apps);
-        } catch (Exception e) {
-            dockApps = new String[0];
-        }
-        try {
-            hidden.addAll(Arrays.asList(getResources().getStringArray(R.array.hidden_apps)));
-        } catch (Exception ignored) {}
+        try { dockApps = getResources().getStringArray(R.array.dock_apps); } catch (Exception e) { dockApps = new String[0]; }
+        try { hidden.addAll(Arrays.asList(getResources().getStringArray(R.array.hidden_apps))); } catch (Exception ignored) {}
         hidden.add(getPackageName());
 
         try { liveTvPkg = getString(R.string.live_tv_package); } catch (Exception ignored) {}
@@ -206,10 +191,6 @@ public class MainActivity extends Activity {
             wallpapers = getAssets().list("wallpapers");
         } catch (java.io.IOException ignored) { }
 
-        glow = new View(this);
-        root.addView(glow, new FrameLayout.LayoutParams(-1, -1));
-        setGlow(glowColor);
-
         scroll = new HomeScrollView(this);
         scroll.setVerticalScrollBarEnabled(false);
         scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -236,7 +217,6 @@ public class MainActivity extends Activity {
         hero.addView(bottom, lp(-1, -2, Gravity.BOTTOM, dp(48), 0, dp(48), dp(36)));
 
         title = text(26, "sans-serif-medium", Color.WHITE);
-        title.setShadowLayer(dp(12), 0, dp(2), 0x99000000);
         title.setSingleLine(true);
         bottom.addView(title, new LinearLayout.LayoutParams(-2, -2));
         ((LinearLayout.LayoutParams) title.getLayoutParams()).setMargins(dp(12), 0, 0, dp(12));
@@ -292,7 +272,6 @@ public class MainActivity extends Activity {
         date.setLetterSpacing(0.18f);
         left.addView(date);
 
-        for (TextView t : new TextView[]{greeting, clock, ampm, date}) t.setShadowLayer(dp(8), 0, dp(1), 0x99000000);
         header.addView(left, new FrameLayout.LayoutParams(dp(400), -2, Gravity.START | Gravity.TOP));
 
         LinearLayout right = new LinearLayout(this);
@@ -327,9 +306,8 @@ public class MainActivity extends Activity {
         p.setOnFocusChangeListener((v, has) -> {
             bg.setColor(has ? 0xF2FFFFFF : 0x55000000);
             ((TextView) v).setTextColor(has ? 0xFF111111 : 0xE6FFFFFF);
-            v.animate().scaleX(has ? 1.06f : 1f).scaleY(has ? 1.06f : 1f)
-                    .setInterpolator(new OvershootInterpolator(1.8f)).setDuration(200).start();
-            if (has) { lastFocusedId = v.getId(); scroll.smoothScrollTo(0, 0); fadeGlow(1f); }
+            v.animate().scaleX(has ? 1.05f : 1f).scaleY(has ? 1.05f : 1f).setDuration(140).start();
+            if (has) { lastFocusedId = v.getId(); scroll.smoothScrollTo(0, 0); }
         });
         return p;
     }
@@ -351,7 +329,6 @@ public class MainActivity extends Activity {
             if (banner == null) banner = ai.applicationInfo.loadBanner(pm);
             a.isBanner = banner != null;
             a.art = banner != null ? banner : ri.loadIcon(pm);
-            a.color = sampleColor(a.pkg, a.art);
             byPkg.put(a.pkg, a);
         }
 
@@ -359,7 +336,6 @@ public class MainActivity extends Activity {
         if (dockApps != null) {
             for (String p : dockApps) if (byPkg.containsKey(p)) dock.add(byPkg.remove(p));
         }
-        // Если в доке пусто или 1 приложение, наполняем его первыми популярными приложениями
         if (dock.size() < 4 && !byPkg.isEmpty()) {
             List<String> keys = new ArrayList<>(byPkg.keySet());
             for (String k : keys) {
@@ -408,7 +384,7 @@ public class MainActivity extends Activity {
         appsLabel.setVisibility(rest.isEmpty() ? View.GONE : View.VISIBLE);
         wireFocus();
 
-        if (!dock.isEmpty()) { title.setText(dock.get(0).label); setGlow(dock.get(0).color); }
+        if (!dock.isEmpty()) { title.setText(dock.get(0).label); }
         View last = lastFocusedId == View.NO_ID ? null : findViewById(lastFocusedId);
         if (last != null) last.requestFocus();
         else if (!dockCards.isEmpty()) dockCards.get(0).requestFocus();
@@ -433,23 +409,22 @@ public class MainActivity extends Activity {
         });
 
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(app.isBanner ? 0xFF1C1E24 : darken(app.color, 0.35f));
+        bg.setColor(0xFF20232A);
         card.setBackground(bg);
 
         ImageView img = new ImageView(this);
         img.setImageDrawable(app.art);
+        img.setScaleType(ImageView.ScaleType.FIT_CENTER);
         if (app.isBanner) {
-            img.setScaleType(ImageView.ScaleType.FIT_CENTER);
             img.setPadding(dp(10), dp(10), dp(10), dp(10));
         } else {
-            img.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            img.setPadding(dp(22), dp(16), dp(22), dp(16));
+            img.setPadding(dp(20), dp(14), dp(20), dp(14));
         }
         card.addView(img, new FrameLayout.LayoutParams(-1, -1));
 
         GradientDrawable ring = new GradientDrawable();
         ring.setCornerRadius(dp(14));
-        ring.setStroke(dp(2), 0xFFFFFFFF);
+        ring.setStroke(dp(3), 0xFFFFFFFF);
         View shine = new View(this);
         shine.setBackground(ring);
         shine.setAlpha(0f);
@@ -470,21 +445,17 @@ public class MainActivity extends Activity {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)));
 
         card.setOnFocusChangeListener((v, has) -> {
-            float s = has ? 1.08f : 1f;
-            v.animate().scaleX(s).scaleY(s).translationZ(has ? dp(12) : 0)
-                    .setInterpolator(has ? new OvershootInterpolator(1.6f) : new DecelerateInterpolator())
-                    .setDuration(has ? 280 : 180).start();
-            shine.animate().alpha(has ? 1f : 0f).setDuration(160).start();
+            float s = has ? 1.06f : 1f;
+            v.animate().scaleX(s).scaleY(s).setDuration(120).start();
+            shine.setAlpha(has ? 1f : 0f);
             if (!has) return;
             lastFocusedId = v.getId();
             title.setText(app.label);
-            title.animate().alpha(1f).setDuration(180).start();
-            animateGlow(app.color);
             if (inDock) {
-                fadeGlow(1f);
+                gridShade.animate().alpha(0f).setDuration(180).start();
                 scroll.smoothScrollTo(0, 0);
             } else {
-                fadeGlow(0.4f);
+                gridShade.animate().alpha(1f).setDuration(180).start();
                 scrollToRow(box);
             }
         });
@@ -633,29 +604,6 @@ public class MainActivity extends Activity {
         wifiPill.setText("◉  " + name);
     }
 
-    private void setGlow(int color) {
-        glowColor = color;
-        GradientDrawable g = new GradientDrawable();
-        g.setGradientType(GradientDrawable.RADIAL_GRADIENT);
-        g.setGradientCenter(0.5f, 0.75f);
-        g.setGradientRadius(getResources().getDisplayMetrics().widthPixels * 0.55f);
-        g.setColors(new int[]{withAlpha(color, 0.45f), withAlpha(color, 0.12f), Color.TRANSPARENT});
-        glow.setBackground(g);
-    }
-
-    private void animateGlow(int to) {
-        if (glowAnim != null) glowAnim.cancel();
-        glowAnim = ValueAnimator.ofObject(new ArgbEvaluator(), glowColor, to);
-        glowAnim.setDuration(350);
-        glowAnim.addUpdateListener(a -> setGlow((int) a.getAnimatedValue()));
-        glowAnim.start();
-    }
-
-    private void fadeGlow(float alpha) {
-        glow.animate().alpha(alpha).setDuration(250).start();
-        gridShade.animate().alpha(alpha < 1f ? 1f : 0f).setDuration(250).start();
-    }
-
     private ImageView wallpaperLayer() {
         ImageView v = new ImageView(this);
         v.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -693,7 +641,7 @@ public class MainActivity extends Activity {
         root.addView(wallFront, 1, new FrameLayout.LayoutParams(-1, -1));
         wallFront.setImageBitmap(bm);
         wallFront.setAlpha(0f);
-        wallFront.animate().alpha(1f).setDuration(firstWallpaper ? 600 : 1500).withEndAction(() -> {
+        wallFront.animate().alpha(1f).setDuration(firstWallpaper ? 400 : 1000).withEndAction(() -> {
             wallBack.setImageDrawable(null);
         }).start();
         firstWallpaper = false;
@@ -706,49 +654,16 @@ public class MainActivity extends Activity {
         handler.postDelayed(rotateWallpaper, Math.max(1000, delay));
     }
 
-    private int sampleColor(String pkg, Drawable d) {
-        Integer cached = colorCache.get(pkg);
-        if (cached != null) return cached;
-        int color = 0xFF2A2A35;
-        try {
-            Bitmap bm = Bitmap.createBitmap(24, 14, Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(bm);
-            d.setBounds(0, 0, 24, 14);
-            d.draw(c);
-            float[] hsv = new float[3];
-            double r = 0, g = 0, b = 0, w = 0;
-            for (int y = 0; y < 14; y++) for (int x = 0; x < 24; x++) {
-                int p = bm.getPixel(x, y);
-                if (Color.alpha(p) < 128) continue;
-                Color.colorToHSV(p, hsv);
-                double weight = 0.05 + hsv[1] * hsv[2];
-                r += Color.red(p) * weight; g += Color.green(p) * weight; b += Color.blue(p) * weight; w += weight;
-            }
-            bm.recycle();
-            if (w > 0) {
-                Color.colorToHSV(Color.rgb((int) (r / w), (int) (g / w), (int) (b / w)), hsv);
-                if (hsv[1] > 0.12f) { hsv[1] = Math.max(hsv[1], 0.70f); hsv[2] = 0.85f; }
-                else { hsv[1] = 0f; hsv[2] = 0.40f; }
-                color = Color.HSVToColor(hsv);
-            }
-        } catch (RuntimeException ignored) { }
-        colorCache.put(pkg, color);
-        return color;
-    }
-
     private void playEntrance() {
         View header = hero.getChildAt(0);
         header.setAlpha(0f);
-        header.setTranslationY(-dp(12));
-        header.animate().alpha(1f).translationY(0).setDuration(400).setStartDelay(60).start();
+        header.animate().alpha(1f).setDuration(300).start();
         title.setAlpha(0f);
-        title.animate().alpha(1f).setDuration(400).setStartDelay(150).start();
+        title.animate().alpha(1f).setDuration(300).setStartDelay(100).start();
         for (int i = 0; i < dockRow.getChildCount(); i++) {
             View t = dockRow.getChildAt(i);
             t.setAlpha(0f);
-            t.setTranslationY(dp(20));
-            t.animate().alpha(1f).translationY(0).setInterpolator(new DecelerateInterpolator(2f))
-                    .setDuration(400).setStartDelay(120 + i * 50L).start();
+            t.animate().alpha(1f).setDuration(300).setStartDelay(100 + i * 40L).start();
         }
     }
 
@@ -800,14 +715,6 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(w, h);
         p.setMargins(l, t, r, b);
         return p;
-    }
-
-    private static int withAlpha(int c, float a) {
-        return Color.argb(Math.round(a * 255), Color.red(c), Color.green(c), Color.blue(c));
-    }
-
-    private static int darken(int c, float f) {
-        return Color.rgb((int) (Color.red(c) * f), (int) (Color.green(c) * f), (int) (Color.blue(c) * f));
     }
 
     @Override
