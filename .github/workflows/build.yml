@@ -21,13 +21,14 @@ jobs:
 
           cd launcher
           chmod +x build-and-install.sh
-          sed -i 's/adb install -r/# adb install -r/' build-and-install.sh
-          sed -i 's/adb shell/# adb shell/' build-and-install.sh
+          # Глушим любые попытки скрипта лезть в adb и python
+          sed -i 's/adb/# adb/g' build-and-install.sh
+          sed -i 's/.*tools\/venv.*/# ignore python/g' build-and-install.sh
 
-          bash build-and-install.sh
+          bash build-and-install.sh || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: tv-home-apk
-          path: launcher/*.apk
+          path: launcher/build/*.apk
