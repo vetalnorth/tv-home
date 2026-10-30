@@ -6,19 +6,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+
       - name: Build APK
         run: |
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          BUILD_TOOLS_PATH=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+          export PATH=$PATH:$BUILD_TOOLS_PATH
+
           cd launcher
           chmod +x build-and-install.sh
           sed -i 's/adb install -r/# adb install -r/' build-and-install.sh
-          ./build-and-install.sh || bash build-and-install.sh
+          sed -i 's/adb shell/# adb shell/' build-and-install.sh
+
+          bash build-and-install.sh
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
