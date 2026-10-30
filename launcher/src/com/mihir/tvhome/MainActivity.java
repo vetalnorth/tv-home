@@ -28,6 +28,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
+import android.view.animation.Interpolator;
+import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -52,6 +54,9 @@ public class MainActivity extends Activity {
     private static final String PREFS_NAME = "tvos_prefs";
     private static final String KEY_PINNED = "dock_pinned_pkgs";
     private static final int COLS = 5;
+
+    // Плавная физическая кривая в стиле tvOS / One UI
+    private static final Interpolator TVOS_CURVE = new PathInterpolator(0.18f, 1f, 0.22f, 1f);
 
     static final class AppItem {
         String pkg;
@@ -188,14 +193,14 @@ public class MainActivity extends Activity {
 
     private View buildInterface() {
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(0xFF07080D);
+        root.setBackgroundColor(0xFF04060A);
 
-        // Жидкое стекло: градиент глубокого космоса с сапфировым отливом
-        View glassBackdrop = new View(this);
-        GradientDrawable gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0xFF101626, 0xFF0A0D18, 0xFF06070B});
-        glassBackdrop.setBackground(gradient);
-        root.addView(glassBackdrop, new FrameLayout.LayoutParams(-1, -1));
+        // Атмосферный кинематографичный градиент Liquid Space (глубокий индиго + графит)
+        View glassWallpaper = new View(this);
+        GradientDrawable wallpaper = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{0xFF121A2D, 0xFF0E1322, 0xFF070912, 0xFF040508});
+        glassWallpaper.setBackground(wallpaper);
+        root.addView(glassWallpaper, new FrameLayout.LayoutParams(-1, -1));
 
         mainScroll = new SmoothTvScrollView(this);
         mainScroll.setVerticalScrollBarEnabled(false);
@@ -225,9 +230,8 @@ public class MainActivity extends Activity {
         focusedAppTitle = makeText(24, "sans-serif-medium", Color.WHITE);
         focusedAppTitle.setSingleLine(true);
         dockSection.addView(focusedAppTitle, new LinearLayout.LayoutParams(-2, -2));
-        ((LinearLayout.LayoutParams) focusedAppTitle.getLayoutParams()).setMargins(dp(16), 0, 0, dp(14));
+        ((LinearLayout.LayoutParams) focusedAppTitle.getLayoutParams()).setMargins(dp(18), 0, 0, dp(14));
 
-        // Горизонтальный скроллер Дока в стиле tvOS Liquid Glass
         dockScroll = new HorizontalScrollView(this);
         dockScroll.setHorizontalScrollBarEnabled(false);
         dockScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -239,22 +243,22 @@ public class MainActivity extends Activity {
         dockRow.setGravity(Gravity.CENTER_VERTICAL);
         dockRow.setClipChildren(false);
         dockRow.setClipToPadding(false);
-        dockRow.setPadding(dp(20), dp(18), dp(20), dp(18));
+        dockRow.setPadding(dp(22), dp(20), dp(22), dp(20));
 
-        // Жидкая стеклянная капсула
-        GradientDrawable glassPod = new GradientDrawable();
-        glassPod.setCornerRadius(dp(26));
-        glassPod.setColor(0x22FFFFFF);
-        glassPod.setStroke(dp(1), 0x38FFFFFF);
-        dockRow.setBackground(glassPod);
+        // Жидкая стеклянная капсула Дока
+        GradientDrawable dockGlass = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0x2AFFFFFF, 0x14FFFFFF});
+        dockGlass.setCornerRadius(dp(28));
+        dockGlass.setStroke(dp(1), 0x3DFFFFFF);
+        dockRow.setBackground(dockGlass);
 
         dockScroll.addView(dockRow, new FrameLayout.LayoutParams(-2, -2));
         dockSection.addView(dockScroll, new LinearLayout.LayoutParams(-1, -2));
 
-        TextView appsDivider = makeText(12, "sans-serif-medium", 0x77FFFFFF);
+        TextView appsDivider = makeText(12, "sans-serif-medium", 0x88FFFFFF);
         appsDivider.setText("ПРИЛОЖЕНИЯ");
         appsDivider.setLetterSpacing(0.2f);
-        contentBox.addView(appsDivider, makeLp(-2, -2, dp(64), dp(24), dp(64), dp(16)));
+        contentBox.addView(appsDivider, makeLp(-2, -2, dp(64), dp(26), dp(64), dp(16)));
 
         gridContainer = new LinearLayout(this);
         gridContainer.setOrientation(LinearLayout.VERTICAL);
@@ -272,7 +276,7 @@ public class MainActivity extends Activity {
         LinearLayout leftSide = new LinearLayout(this);
         leftSide.setOrientation(LinearLayout.VERTICAL);
 
-        greetingText = makeText(11, "sans-serif-medium", 0x88FFFFFF);
+        greetingText = makeText(11, "sans-serif-medium", 0x99FFFFFF);
         greetingText.setLetterSpacing(0.18f);
         leftSide.addView(greetingText);
 
@@ -313,17 +317,18 @@ public class MainActivity extends Activity {
         pill.setFocusable(true);
         pill.setId(View.generateViewId());
 
-        GradientDrawable pillBg = new GradientDrawable();
+        GradientDrawable pillBg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0x2EFFFFFF, 0x16FFFFFF});
         pillBg.setCornerRadius(dp(17));
-        pillBg.setColor(0x28FFFFFF);
         pillBg.setStroke(dp(1), 0x33FFFFFF);
         pill.setBackground(pillBg);
 
         pill.setOnFocusChangeListener((v, hasFocus) -> {
-            pillBg.setColor(hasFocus ? Color.WHITE : 0x28FFFFFF);
-            pillBg.setStroke(dp(1), hasFocus ? Color.WHITE : 0x33FFFFFF);
-            ((TextView) v).setTextColor(hasFocus ? 0xFF0D1017 : 0xE6FFFFFF);
-            v.animate().scaleX(hasFocus ? 1.05f : 1f).scaleY(hasFocus ? 1.05f : 1f).setDuration(90).start();
+            pillBg.setColors(hasFocus ? new int[]{0xFFFFFFFF, 0xFFE0E0E0} : new int[]{0x2EFFFFFF, 0x16FFFFFF});
+            pillBg.setStroke(dp(1), hasFocus ? 0xFFFFFFFF : 0x33FFFFFF);
+            ((TextView) v).setTextColor(hasFocus ? 0xFF0A0D14 : 0xE6FFFFFF);
+            v.animate().scaleX(hasFocus ? 1.05f : 1f).scaleY(hasFocus ? 1.05f : 1f)
+                    .setInterpolator(TVOS_CURVE).setDuration(200).start();
             if (hasFocus) {
                 focusedViewId = v.getId();
                 mainScroll.smoothScrollTo(0, 0);
@@ -456,10 +461,11 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Стеклянная подложка плитки
-        GradientDrawable baseBg = new GradientDrawable();
-        baseBg.setColor(0xFF1B1E28);
-        card.setBackground(baseBg);
+        // Стеклянная база карточки с легким зеркальным градиентом
+        GradientDrawable cardGlass = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{0x26FFFFFF, 0x14FFFFFF, 0x0AFFFFFF});
+        cardGlass.setStroke(dp(1), 0x22FFFFFF);
+        card.setBackground(cardGlass);
 
         ImageView artView = new ImageView(this);
         artView.setImageDrawable(app.icon);
@@ -471,10 +477,10 @@ public class MainActivity extends Activity {
         }
         card.addView(artView, new FrameLayout.LayoutParams(-1, -1));
 
-        // Эффект жидкого стекла: неоновый белый контур при фокусе
+        // Стеклянный контур фокуса One UI / Liquid Glass
         GradientDrawable focusBorder = new GradientDrawable();
         focusBorder.setCornerRadius(dp(16));
-        focusBorder.setStroke(dp(3), Color.WHITE);
+        focusBorder.setStroke(dp(3), 0xFFFFFFFF);
         View focusOverlay = new View(this);
         focusOverlay.setBackground(focusBorder);
         focusOverlay.setAlpha(0f);
@@ -507,9 +513,19 @@ public class MainActivity extends Activity {
         });
 
         card.setOnFocusChangeListener((v, hasFocus) -> {
-            float s = hasFocus ? 1.07f : 1f;
-            v.animate().scaleX(s).scaleY(s).setDuration(90).start();
-            focusOverlay.setAlpha(hasFocus ? 1f : 0f);
+            // Элегантное увеличение с кривой Безье
+            float targetScale = hasFocus ? 1.08f : 1f;
+            v.animate()
+                    .scaleX(targetScale)
+                    .scaleY(targetScale)
+                    .setInterpolator(TVOS_CURVE)
+                    .setDuration(220)
+                    .start();
+
+            focusOverlay.animate()
+                    .alpha(hasFocus ? 1f : 0f)
+                    .setDuration(180)
+                    .start();
 
             if (!hasFocus) return;
             focusedViewId = v.getId();
@@ -517,7 +533,7 @@ public class MainActivity extends Activity {
 
             if (inDock) {
                 mainScroll.smoothScrollTo(0, 0);
-                scrollDockToChild(cell); // Автоматическая плавная прокрутка ленты Дока
+                scrollDockToChild(cell);
             } else {
                 alignScrollToTile(cell);
             }
@@ -531,7 +547,6 @@ public class MainActivity extends Activity {
         int childLeft = child.getLeft();
         int childWidth = child.getWidth();
         int scrollWidth = dockScroll.getWidth();
-        // Центрируем плитку внутри ленты Дока
         int targetX = childLeft - (scrollWidth / 2) + (childWidth / 2);
         dockScroll.smoothScrollTo(Math.max(0, targetX), 0);
     }
@@ -589,10 +604,10 @@ public class MainActivity extends Activity {
         list.setOrientation(LinearLayout.VERTICAL);
         list.setPadding(dp(8), dp(8), dp(8), dp(8));
 
-        GradientDrawable bg = new GradientDrawable();
+        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0xEE1A2234, 0xEE121824});
         bg.setCornerRadius(dp(16));
-        bg.setColor(0xF0131722);
-        bg.setStroke(dp(1), 0x30FFFFFF);
+        bg.setStroke(dp(1), 0x38FFFFFF);
         list.setBackground(bg);
 
         PopupWindow popup = new PopupWindow(list, dp(220), -2, true);
