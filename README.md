@@ -56,21 +56,21 @@ Forked from [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) 
 
 <table>
   <tr>
-    <td align="center" width="160">
+    <td align="center" valign="top" width="160">
       <a href="https://github.com/mihirgupta0900">
         <img src="https://github.com/mihirgupta0900.png" width="90" style="border-radius: 50%;" alt="Mihir Gupta"/><br />
         <sub><b>Mihir Gupta</b></sub>
       </a><br />
       <sub>💻 Original Core</sub>
     </td>
-    <td align="center" width="160">
+    <td align="center" valign="top" width="160">
       <a href="https://github.com/vetalnorth">
         <img src="https://github.com/vetalnorth.png" width="90" style="border-radius: 50%;" alt="vetalnorth"/><br />
         <sub><b>vetalnorth</b></sub>
       </a><br />
       <sub>🎯 Direction & AI Prompting</sub>
     </td>
-    <td align="center" width="160">
+    <td align="center" valign="top" width="160">
       <a href="https://gemini.google.com/">
         <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg" width="90" style="border-radius: 50%; padding: 10px; background: #1e1f20;" alt="Google Gemini"/><br />
         <sub><b>Google Gemini</b></sub>
