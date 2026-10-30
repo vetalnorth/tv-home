@@ -2,7 +2,7 @@
 
 A lightweight, ultra-smooth, and distraction-free Android TV launcher inspired by Apple tvOS and modern glassmorphism design.
 
-Forked from `mihirgupta0900/tv-home` and completely rewritten to eliminate UI stuttering, input lag, and heavy background rendering overhead.
+Forked from [mihirgupta0900/tv-home](https://github.com/mihirgupta0900/tv-home) and completely rewritten to eliminate UI stuttering, input lag, and heavy background rendering overhead.
 
 ![Before and After](before-after.png?v=2)
 
